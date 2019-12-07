@@ -5,6 +5,8 @@ export enum Status {
   CANCELLED = 'cancelled',
 }
 
+export const arrayStatus = [Status.PENDING, Status.TRANSITING, Status.DELIVERED, Status.CANCELLED];
+
 export interface IUser {
   firstName: string;
   lastName: string;
@@ -13,6 +15,7 @@ export interface IUser {
 }
 
 export interface IParcel {
+  userId: string;
   parcelName: string;
   description: string;
   pickupLocation: string;
