@@ -1,13 +1,13 @@
-import express from 'express';
+import express, { Application } from 'express';
 import * as bodyParser from 'body-parser';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
-import apiV2 from './api/index';
+import apiV1 from './api/index';
 import * as errorHandler from './helpers/errorHandler';
 
 class App {
-  public express: express.Application;
+  public express: Application;
 
   constructor() {
     this.express = express();
@@ -25,7 +25,7 @@ class App {
   }
 
   private setRoutes(): void {
-    this.express.use('/v1', apiV2);
+    this.express.use('/v1', apiV1);
   }
 
   private catchErrors(): void {
