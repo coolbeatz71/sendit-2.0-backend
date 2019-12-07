@@ -22,4 +22,4 @@ Give instructions on how reviewers can verify your work
 
 #### Any background context you want to add
 
-[Finishes|Delivers|Fixes]
+[Delivers]
