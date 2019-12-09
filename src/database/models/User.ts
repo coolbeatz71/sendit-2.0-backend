@@ -1,24 +1,14 @@
-import bcrypt from 'bcrypt-nodejs';
+import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 import mongoose, { Document, Schema, Error } from 'mongoose';
-
-export interface IAuthToken {
-  accessToken: string;
-  kind: string;
-}
 
 export type UserDocument = Document & {
   email: string;
   firstName: string;
   lastName: string;
-  picture: string;
   password: string;
 
-  passwordResetToken: string;
-  passwordResetExpires: Date;
-
-  facebook: string;
-  tokens: IAuthToken[];
+  provider: string;
 
   // for facebook login
   profile: {
@@ -29,6 +19,7 @@ export type UserDocument = Document & {
     picture: string;
   };
 
+  isLoggedIn: boolean;
   isAdmin: boolean;
 
   comparePassword: comparePasswordFunction;
@@ -45,14 +36,9 @@ const userSchema = new Schema(
     email: { type: String, unique: true },
     firstName: String,
     lastName: String,
-    picture: String,
-    password: String,
+    password: { type: String, select: false },
 
-    passwordResetToken: String,
-    passwordResetExpires: Date,
-
-    facebook: String,
-    tokens: Array,
+    provider: String,
 
     profile: {
       name: String,
@@ -60,6 +46,11 @@ const userSchema = new Schema(
       location: String,
       website: String,
       picture: String,
+    },
+
+    isLoggedIn: {
+      type: Boolean,
+      default: false,
     },
 
     isAdmin: {
@@ -92,6 +83,14 @@ userSchema.pre('save', function save(next) {
   });
 });
 
+userSchema.set('toJSON', {
+  transform(_doc, ret, _opt) {
+    // tslint:disable-next-line: no-string-literal
+    delete ret['password'];
+    return ret;
+  },
+});
+
 /**
  * @param candidatePassword password to compare
  *
@@ -99,7 +98,7 @@ userSchema.pre('save', function save(next) {
  * @returns void
  */
 const comparePassword: comparePasswordFunction = function(this: any, candidatePassword, cb) {
-  bcrypt.compare(candidatePassword, this.password, (err: mongoose.Error, isMatch: boolean) => {
+  bcrypt.compare(candidatePassword, this.password, (err: Error, isMatch: boolean) => {
     cb(err, isMatch);
   });
 };
@@ -123,4 +122,4 @@ userSchema.methods.gravatar = function(size: number = 200) {
   return `https://gravatar.com/avatar/${md5}?s=${size}&d=retro`;
 };
 
-export const User = mongoose.model<UserDocument>('User', userSchema);
+export const User = mongoose.model<UserDocument>('User', userSchema, 'users');

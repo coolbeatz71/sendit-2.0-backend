@@ -1,10 +1,11 @@
 import mongoose, { Document, Schema } from 'mongoose';
-import { IParcel, Status } from '../../interfaces/models.interface';
+import { IParcel, arrayStatus } from '../../interfaces/models.interface';
 
 export type ParcelDocument = Document & IParcel;
 
 const parcelSchema = new Schema(
   {
+    userId: String,
     parcelName: String,
     description: String,
     pickupLocation: String,
@@ -12,9 +13,11 @@ const parcelSchema = new Schema(
     presentLocation: String,
     weight: Number,
     price: Number,
-    status: Status,
+    status: {
+      enum: arrayStatus,
+    },
   },
   { timestamps: true },
 );
 
-export const Parcel = mongoose.model<ParcelDocument>('Parcel', parcelSchema);
+export const Parcel = mongoose.model<ParcelDocument>('Parcel', parcelSchema, 'parcels');

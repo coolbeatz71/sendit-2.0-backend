@@ -1,1 +1,5 @@
 serviceWorker.*
+.env
+.env.development
+.env.test
+.env.example
