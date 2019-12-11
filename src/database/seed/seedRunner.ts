@@ -1,8 +1,8 @@
 import { dbSetup } from '../db';
 import { seed } from './seeders';
+import { config } from 'dotenv';
 
-import * as dotenv from 'dotenv';
-dotenv.config();
+config();
 
 const runSeed = async () => {
   await dbSetup();

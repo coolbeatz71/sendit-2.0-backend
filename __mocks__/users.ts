@@ -1,6 +1,7 @@
 import faker from 'faker';
-import * as dotenv from 'dotenv';
-dotenv.config();
+import { config } from 'dotenv';
+
+config();
 
 const password = process.env.USER_PASSWORD;
 
