@@ -1,7 +1,7 @@
 import faker from 'faker';
 import { User } from '../models/User';
 import { Parcel } from './../models/Parcel';
-import { user, admin, userLoggedIn, adminLoggedIn } from '../../../mocks/users';
+import { user, admin, userLoggedIn, adminLoggedIn } from '../../../__mocks__/users';
 import { IParcel, Status } from './../../interfaces/models.interface';
 
 let allUsers: any[];
