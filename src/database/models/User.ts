@@ -28,7 +28,7 @@ export type UserDocument = Document & {
 
 type comparePasswordFunction = (
   candidatePassword: string,
-  callback: (err: any, isMatch: any) => {},
+  callback: (err: any, isMatch: boolean) => {},
 ) => void;
 
 const userSchema = new Schema(
@@ -66,17 +66,11 @@ const userSchema = new Schema(
  */
 userSchema.pre('save', function save(next) {
   const user = this as UserDocument;
-  if (!user.isModified('password')) {
-    return next();
-  }
+  if (!user.isModified('password')) return next();
   bcrypt.genSalt(10, (err, salt) => {
-    if (err) {
-      return next(err);
-    }
+    if (err) return next(err);
     bcrypt.hash(user.password, salt, (hashErr: Error, hash: string) => {
-      if (hashErr) {
-        return next(hashErr);
-      }
+      if (hashErr) return next(hashErr);
       user.password = hash;
       next();
     });
@@ -85,7 +79,6 @@ userSchema.pre('save', function save(next) {
 
 userSchema.set('toJSON', {
   transform(_doc, ret, _opt) {
-    // tslint:disable-next-line: no-string-literal
     delete ret['password'];
     return ret;
   },

@@ -1,6 +1,9 @@
+import { config } from 'dotenv';
 import app from './App';
-import { PORT } from './database/config';
 import './database/db';
+import { PORT } from './database/config';
+
+config();
 
 app.listen(PORT, (err: Error) => {
   if (err) return console.log(err);
