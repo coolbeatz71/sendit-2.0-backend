@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import httpStatus from 'http-status';
 import { config } from 'dotenv';
 import helper from './../../helpers';
-import { User } from '../../database/models/User';
+import { User, UserDocument } from '../../database/models/User';
 import { JWT_ENCRYPTION } from '../../database/config';
 
 config();
@@ -15,7 +15,7 @@ config();
  * @param {object} next
  * @returns boolean
  */
-const verifyToken = async (req: Request, res: Response) => {
+export const verifyToken = (req: Request, res: Response, next: NextFunction): any => {
   const { authorization } = req.headers;
   if (!authorization) {
     return helper.getResponse(res, httpStatus.UNAUTHORIZED, {
@@ -23,24 +23,29 @@ const verifyToken = async (req: Request, res: Response) => {
     });
   }
 
-  const token = authorization.split(' ')[1];
+  const token: string = authorization.split(' ')[1];
 
   try {
     const jwtPayload: any = jwt.verify(token, JWT_ENCRYPTION);
-    const result: any = await User.findOne({ _id: jwtPayload._id });
+    User.findOne({ _id: jwtPayload._id }, (err, result: UserDocument): any => {
+      if (err) return helper.getServerError(res, err.message);
+      if (!result) {
+        return helper.getResponse(res, httpStatus.UNAUTHORIZED, {
+          message: 'The token appears to be invalid or expired',
+        });
+      }
+      if (!result.isLoggedIn) {
+        return helper.getResponse(res, httpStatus.FORBIDDEN, {
+          message: 'You need to first log in',
+        });
+      }
 
-    if (!result.isLoggedIn) {
-      return helper.getResponse(res, httpStatus.FORBIDDEN, {
-        message: 'You need to first log in',
-      });
-    }
-    req.user = jwtPayload;
-
-    // get the isAdmin value
-    const { isAdmin }: any = req.user;
-    return isAdmin;
+      req.user = jwtPayload;
+      next();
+    });
   } catch (error) {
-    return helper.getServerError(res, { message: error.message });
+    const message = 'The token appears to be invalid or expired';
+    return helper.getResponse(res, httpStatus.UNAUTHORIZED, { message });
   }
 };
 
@@ -51,13 +56,15 @@ const verifyToken = async (req: Request, res: Response) => {
  * @param {object} next
  * @returns {void}
  */
-const admin = async (req: Request, res: Response, next: NextFunction) => {
-  const isAdmin = await verifyToken(req, res);
+export const admin = (req: Request, res: Response, next: NextFunction) => {
+  verifyToken(req, res, () => {
+    const { isAdmin }: any = req.user;
 
-  // authorize if the isAdmin is true
-  if (isAdmin) return next();
-  return helper.getResponse(res, httpStatus.FORBIDDEN, {
-    message: 'Access forbidden: only authenticated admin is authorized',
+    // authorize if the isAdmin is true
+    if (isAdmin) return next();
+    return helper.getResponse(res, httpStatus.FORBIDDEN, {
+      message: 'Access forbidden: only authenticated admin is authorized',
+    });
   });
 };
 
@@ -68,14 +75,14 @@ const admin = async (req: Request, res: Response, next: NextFunction) => {
  * @param {object} next
  * @returns {void}
  */
-const user = async (req: Request, res: Response, next: NextFunction) => {
-  const isAdmin = await verifyToken(req, res);
+export const user = (req: Request, res: Response, next: NextFunction) => {
+  verifyToken(req, res, () => {
+    const { isAdmin }: any = req.user;
 
-  // authorize if the isAdmin is false
-  if (!isAdmin) return next();
-  return helper.getResponse(res, httpStatus.FORBIDDEN, {
-    message: 'Access forbidden: only authenticated user is authorized',
+    // authorize if the isAdmin is false
+    if (!isAdmin) return next();
+    return helper.getResponse(res, httpStatus.FORBIDDEN, {
+      message: 'Access forbidden: only authenticated user is authorized',
+    });
   });
 };
-
-export default { user, admin };

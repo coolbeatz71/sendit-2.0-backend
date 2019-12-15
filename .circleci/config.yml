@@ -3,6 +3,7 @@ jobs:
   build:
     docker:
       - image: circleci/node:10.15.2
+      - image: mongo:xenial
     steps:
       - checkout
       - restore_cache:

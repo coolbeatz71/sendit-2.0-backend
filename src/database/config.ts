@@ -27,6 +27,8 @@ export const {
   JWT_ENCRYPTION,
   JWT_EXPIRATION,
   SALT_ROUNDS,
+  USER_PASSWORD,
+  JWT_NON_AUTH_ADMIN,
 } = process.env as {
   [key: string]: string;
 };

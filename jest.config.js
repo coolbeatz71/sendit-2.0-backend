@@ -1,5 +1,7 @@
 module.exports = {
   collectCoverage: true,
+  globalSetup: './src/setup-jest.ts',
+  globalTeardown: './src/teardown-jest.ts',
   globals: {
     'ts-jest': {
       tsConfig: 'tsconfig.json',
@@ -9,8 +11,8 @@ module.exports = {
     '<rootDir>/src/**/*.(ts|js)',
     '!<rootDir>/src/index.(ts|js)',
     '!**/node_modules/**',
+    '!<rootDir>/src/database/**',
   ],
-  coveragePathIgnorePatterns: ['<rootDir>/src/database/*.(ts|js)'],
   testMatch: [
     '<rootDir>/src/**/__tests__/**/?(*.)(spec|test).(ts|js)',
     '<rootDir>/src/**/?(*.)(spec|test).(ts|js)',

@@ -1,8 +1,9 @@
 import faker from 'faker';
-import { User } from '../models/User';
-import { Parcel } from './../models/Parcel';
-import { user, admin, userLoggedIn, adminLoggedIn } from '../../../__mocks__/users';
-import { IParcel, Status } from './../../interfaces/models.interface';
+import { dbSetup } from './database/db';
+import { User } from './database/models/User';
+import { Parcel } from './database/models/Parcel';
+import { user, admin, userLoggedIn, adminLoggedIn } from '../__mocks__/users';
+import { IParcel } from './interfaces/models.interface';
 
 let allUsers: any[];
 const data = [user, admin, userLoggedIn, adminLoggedIn];
@@ -25,21 +26,16 @@ export const seedParcels = async () => {
         presentLocation: faker.address.country(),
         weight: parseFloat(faker.finance.amount(10, 90, 2)),
         price: parseFloat(faker.finance.amount(10, 90, 2)),
-        status: Status.PENDING,
       };
       await Parcel.create(parcels);
     }
   });
 };
 
-export const seed = async () => {
-  seedUsers()
-    .then(() => {
-      console.log('👏🏿👏🏿👏🏿 Users seed successfully terminated');
-    })
-    .then(() => {
-      seedParcels().then(() => {
-        console.log('👏🏿👏🏿👏🏿 Parcels seed successfully terminated');
-      });
-    });
+export const setupJest = async () => {
+  await dbSetup();
+  await seedUsers();
+  await seedParcels();
 };
+
+export default setupJest;
