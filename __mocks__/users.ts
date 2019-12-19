@@ -1,13 +1,14 @@
 import faker from 'faker';
 import { config } from 'dotenv';
+import { USER_PASSWORD } from '../src/database/config';
 
 config();
 
-const password = process.env.USER_PASSWORD;
+const password = USER_PASSWORD;
 
 export const admin = {
   password,
-  email: faker.internet.email(),
+  email: 'admin@email.com',
   firstName: faker.name.firstName(),
   lastName: faker.name.lastName(),
   provider: null,
@@ -17,7 +18,7 @@ export const admin = {
 
 export const user = {
   password,
-  email: faker.internet.email(),
+  email: 'user@email.com',
   firstName: faker.name.firstName(),
   lastName: faker.name.lastName(),
   provider: null,
@@ -27,7 +28,7 @@ export const user = {
 
 export const adminLoggedIn = {
   password,
-  email: faker.internet.email(),
+  email: 'loggedin_admin@email.com',
   firstName: faker.name.firstName(),
   lastName: faker.name.lastName(),
   provider: null,
@@ -37,7 +38,7 @@ export const adminLoggedIn = {
 
 export const userLoggedIn = {
   password,
-  email: faker.internet.email(),
+  email: 'loggedin_user@email.com',
   firstName: faker.name.firstName(),
   lastName: faker.name.lastName(),
   provider: null,

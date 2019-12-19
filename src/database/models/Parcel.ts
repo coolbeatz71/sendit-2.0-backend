@@ -1,12 +1,15 @@
 import mongoose, { Document, Schema } from 'mongoose';
-import { IParcel, arrayStatus } from '../../interfaces/models.interface';
+import { IParcel, arrayStatus, Status } from '../../interfaces/models.interface';
 
 export type ParcelDocument = Document & IParcel;
 
 const parcelSchema = new Schema(
   {
     userId: String,
-    parcelName: String,
+    parcelName: {
+      type: String,
+      required: true,
+    },
     description: String,
     pickupLocation: String,
     destination: String,
@@ -14,7 +17,9 @@ const parcelSchema = new Schema(
     weight: Number,
     price: Number,
     status: {
+      type: String,
       enum: arrayStatus,
+      default: Status.PENDING,
     },
   },
   { timestamps: true },

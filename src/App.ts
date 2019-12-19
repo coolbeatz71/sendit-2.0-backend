@@ -1,5 +1,4 @@
-import express, { Application } from 'express';
-import * as bodyParser from 'body-parser';
+import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
@@ -7,20 +6,18 @@ import apiV1 from './api/index';
 import * as errorHandler from './helpers/errorHandler';
 
 class App {
-  public express: Application;
+  public express = express();
 
   constructor() {
-    this.express = express();
     this.setMiddlewares();
     this.setRoutes();
     this.catchErrors();
   }
 
   private setMiddlewares(): void {
+    this.express.use(express.json());
     this.express.use(cors());
     this.express.use(morgan('dev'));
-    this.express.use(bodyParser.json());
-    this.express.use(bodyParser.urlencoded({ extended: false }));
     this.express.use(helmet());
   }
 
@@ -34,4 +31,5 @@ class App {
   }
 }
 
-export default new App().express;
+const app = new App().express;
+export default app;

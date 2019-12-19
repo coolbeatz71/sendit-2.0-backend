@@ -11,5 +11,4 @@ This is the improved version of My Andela Bootcamp backend project named SendIT,
 
 - NodeJS
 - Typescript
-- Sequelize
 - MongoDB

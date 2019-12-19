@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import httpStatus from 'http-status';
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
@@ -22,7 +23,7 @@ export interface IResponseBody {
 export class Helpers {
   /**
    * generate the jwt for a user
-   * @param {user} user IJwtPayload
+   * @param user IJwtPayload
    * @returns string
    */
   public generateToken(user: IJwtPayload): string {
@@ -35,20 +36,38 @@ export class Helpers {
   }
 
   /**
+   * check if the _id is a valid mongoose objectId
+   *
+   * @param string _id
+   * @return boolean
+   * @memberof Helpers
+   */
+  public isValidId(_id: string): boolean {
+    return mongoose.Types.ObjectId.isValid(_id);
+  }
+
+  /**
+   * Remove keys with undefined or falsy values from a object
+   * @param obj object
+   */
+  public getSanitizedBody(obj: any) {
+    Object.keys(obj).forEach(key => {
+      if (!obj[key]) delete obj[key];
+    });
+    return obj;
+  }
+
+  /**
    * validate names (firstName or lastName)
    * @param req Request
    * @param field string
    * @param nameType string
-   * @returns {void}
+   * @returns {void} Promise<void>
    */
-  public async validateNames(req: Request, field: string, nameType: string) {
+  public async validateNames(req: Request, field: string, nameType: string): Promise<void> {
+    await this.validateEmpty(req, field, nameType);
     await check(field)
-      .not()
-      .isEmpty()
-      .withMessage(`The ${nameType} cannot be empty`)
-      .run(req);
-
-    await check(field)
+      .trim()
       .isAlpha()
       .withMessage(`The ${nameType} can only contain alphatic characters`)
       .isLength({ min: 3 })
@@ -56,19 +75,63 @@ export class Helpers {
       .run(req);
   }
 
+  public isPropInBody(req: Request, field: string) {
+    return req.body.hasOwnProperty(field);
+  }
+
+  public async validateUpdateParcel(req: Request, field: string): Promise<void> {
+    const fieldType = field
+      .split(/(?=[A-Z])/)
+      .join(' ')
+      .toLowerCase();
+    if (this.isPropInBody(req, field)) {
+      await this.validateEmpty(req, field, fieldType);
+    }
+
+    if (this.isPropInBody(req, field) && field === 'weight') {
+      await this.validateWeight(req, field);
+    }
+  }
+
+  /**
+   * validate empty fields
+   * @param req Request
+   * @param field string
+   * @param nameType string
+   * @returns {void} Promise<void>
+   */
+  public async validateEmpty(req: Request, field: string, nameType: string): Promise<void> {
+    await check(field)
+      .trim()
+      .not()
+      .isEmpty()
+      .withMessage(`The ${nameType} cannot be empty`)
+      .run(req);
+  }
+
+  /**
+   * validate the parcel weight field
+   * @param req Request
+   * @param field string
+   * @returns {void} Promise<void>
+   */
+  public async validateWeight(req: Request, field: string): Promise<void> {
+    await this.validateEmpty(req, field, 'weight');
+    await check(field)
+      .trim()
+      .isNumeric()
+      .withMessage('The parcel weight must be a number')
+      .run(req);
+  }
+
   /**
    * validate password
    * @param req Request
    * @param field string
-   * @returns {void}
+   * @returns {void} Promise<void>
    */
-  public async validatePassword(req: Request, field: string) {
-    await check(field)
-      .not()
-      .isEmpty()
-      .withMessage('The password cannot be empty')
-      .run(req);
-
+  public async validatePassword(req: Request, field: string): Promise<void> {
+    await this.validateEmpty(req, field, 'password');
     await check(field)
       .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{6,})/)
       .withMessage(
@@ -81,16 +144,18 @@ export class Helpers {
    * validate email address
    * @param req Request
    * @param field string
-   * @returns void
+   * @returns {void} Promise<void>
    */
-  public async validateEmail(req: Request, field: string) {
+  public async validateEmail(req: Request, field: string): Promise<void> {
     await check(field)
+      .trim()
       .not()
       .isEmpty()
       .withMessage('The email address cannot be empty')
       .run(req);
 
     await check(field)
+      .trim()
       .isEmail()
       .withMessage('Please enter a valid email address')
       .run(req);
@@ -121,6 +186,16 @@ export class Helpers {
     return this.getResponse(res, status, {
       message: error,
     });
+  }
+
+  /**
+   * get the parcel price from its weight
+   * @param number weight
+   * @return number
+   */
+  public getParcelPrice(weight: number): number {
+    const unitPrice: number = 500;
+    return weight * unitPrice;
   }
 
   /**

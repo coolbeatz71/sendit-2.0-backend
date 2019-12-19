@@ -3,6 +3,7 @@ import { Response, Request } from 'express';
 import { validationResult } from 'express-validator';
 import helper from './../../helpers';
 import { User } from '../../database/models/User';
+import { IUser } from '../../interfaces/models.interface';
 
 export class Auth {
   /**
@@ -29,16 +30,17 @@ export class Auth {
         });
       }
 
-      const newUser = new User({
+      const userObj: IUser = {
         email,
         firstName,
         lastName,
         password,
         isLoggedIn: false,
         isAdmin: false,
-      });
+      };
 
-      newUser.save((err, user) => {
+      const newUser = new User(userObj);
+      newUser.save((err: Error, user: any) => {
         if (err) return helper.getServerError(res, err.message);
         const { _id, email, isAdmin } = user;
         const token = helper.generateToken({ _id, email, isAdmin });
@@ -85,13 +87,13 @@ export class Auth {
         // update the isLogged field
         User.findOneAndUpdate(
           { email },
-          { $set: { isLoggedIn: true } },
+          { isLoggedIn: true },
           { new: true },
           (err, data: any) => {
             if (err) return helper.getServerError(res, err.message);
             const { _id, email, isAdmin } = data;
             const token = helper.generateToken({ _id, email, isAdmin });
-            return helper.getResponse(res, httpStatus.CREATED, { token, data });
+            return helper.getResponse(res, httpStatus.OK, { token, data });
           },
         );
       });
