@@ -85,17 +85,12 @@ export class Auth {
         }
 
         // update the isLogged field
-        User.findOneAndUpdate(
-          { email },
-          { isLoggedIn: true },
-          { new: true },
-          (err, data: any) => {
-            if (err) return helper.getServerError(res, err.message);
-            const { _id, email, isAdmin } = data;
-            const token = helper.generateToken({ _id, email, isAdmin });
-            return helper.getResponse(res, httpStatus.OK, { token, data });
-          },
-        );
+        User.findOneAndUpdate({ email }, { isLoggedIn: true }, { new: true }, (err, data: any) => {
+          if (err) return helper.getServerError(res, err.message);
+          const { _id, email, isAdmin } = data;
+          const token = helper.generateToken({ _id, email, isAdmin });
+          return helper.getResponse(res, httpStatus.OK, { token, data });
+        });
       });
     } catch (error) {
       return helper.getServerError(res, error.message);
@@ -103,5 +98,5 @@ export class Auth {
   }
 }
 
-const auth = new Auth();
-export default auth;
+const authCtrl = new Auth();
+export default authCtrl;

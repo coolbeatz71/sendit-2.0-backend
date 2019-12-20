@@ -7,22 +7,6 @@ import { IParcel, IUserUpdateParcel, Status } from './../../interfaces/models.in
 
 export class Parcels {
   /**
-   * get All parcels for all users
-   * @description requires admin token
-   * @param  Request req
-   * @param  Response res
-   * @return object json
-   */
-  public async getAll(_req: Request, res: Response) {
-    try {
-      const data = await Parcel.find();
-      return helper.getResponse(res, httpStatus.OK, { data });
-    } catch (error) {
-      return helper.getServerError(res, error.message);
-    }
-  }
-
-  /**
    * get All parcels for a private user
    * @description requires user token and id
    * @param  Request req
@@ -267,11 +251,9 @@ export class Parcels {
       }
 
       if (data.status === Status.PENDING || data.status === Status.CANCELLED) {
-        const deleted = await Parcel.findOneAndDelete(
-          { _id: id, userId: _id },
-        );
+        const deleted = await Parcel.findOneAndDelete({ _id: id, userId: _id });
 
-        if(deleted) {
+        if (deleted) {
           return helper.getResponse(res, httpStatus.OK, {
             message: 'Parcel successfully deleted',
           });
@@ -287,5 +269,5 @@ export class Parcels {
   }
 }
 
-const parcel = new Parcels();
-export default parcel;
+const parcelCtrl = new Parcels();
+export default parcelCtrl;

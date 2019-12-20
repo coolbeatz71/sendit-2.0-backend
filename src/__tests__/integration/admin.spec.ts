@@ -1,8 +1,10 @@
-import { User } from './../../database/models/User';
 import request from 'supertest';
 import app from '../../App';
-import { Parcels } from '../../api/controllers/parcels';
+import { User } from './../../database/models/User';
+import { Status } from './../../interfaces/models.interface';
+import { Admin } from '../../api/controllers/admin';
 import { USER_PASSWORD, JWT_NON_AUTH_ADMIN } from '../../database/config';
+import { updateParcelValidationError, updateLocationValidationError } from '../../../__mocks__';
 
 const adminTests = () => {
   const agent = request(app);
@@ -11,6 +13,8 @@ const adminTests = () => {
   let adminToken: string;
   let userToken: string;
   let nonAuthAdminToken: string;
+  let parcelId: string;
+  let destination: string;
 
   beforeAll(async () => {
     const adminResponse = await agent
@@ -50,7 +54,7 @@ const adminTests = () => {
     await User.updateOne({ _id: idAdmin }, { isLoggedIn: false });
   });
 
-  describe(Parcels.prototype.getAll, () => {
+  describe(Admin.prototype.getAllParcels, () => {
     it('should successfully get all parcels', async () => {
       const res = await agent
         .get('/api/v1/admin/parcels')
@@ -59,6 +63,8 @@ const adminTests = () => {
       expect(res.status).toBe(200);
       expect(Array.isArray(res.body.data)).toBeTruthy();
       expect(res.body.data).toHaveLength(2);
+      parcelId = res.body.data[0]._id;
+      destination = res.body.data[0].destination;
     });
 
     it('should throw authorization missing error', async () => {
@@ -101,6 +107,182 @@ const adminTests = () => {
         .set('accept', 'application/json');
       expect(res.status).toBe(403);
       expect(res.body.message).toEqual('You need to first log in');
+    });
+  });
+
+  describe(Admin.prototype.updateParcelStatus, () => {
+    it('should successfully update parcel status', async () => {
+      const res = await agent
+        .put(`/api/v1/admin/parcels/status/${parcelId}`)
+        .set('Authorization', adminToken)
+        .set('accept', 'application/json')
+        .send({
+          status: Status.TRANSITING,
+        });
+      expect(res.status).toBe(200);
+      expect(res.body.message).toEqual('Parcel status successfully updated');
+      expect(res.body.data.status).toEqual('transiting');
+    });
+
+    it('should throw validation error', async () => {
+      const res = await agent
+        .put(`/api/v1/admin/parcels/status/${parcelId}`)
+        .set('Authorization', adminToken)
+        .set('accept', 'application/json')
+        .send({
+          status: '',
+        });
+      expect(res.status).toBe(400);
+      expect(res.body.message).toEqual(updateParcelValidationError);
+    });
+
+    it('should throw invalid params error', async () => {
+      const res = await agent
+        .put(`/api/v1/admin/parcels/status/wrong-id-here`)
+        .set('Authorization', adminToken)
+        .set('accept', 'application/json')
+        .send({
+          status: Status.TRANSITING,
+        });
+      expect(res.status).toBe(400);
+      expect(res.body.message).toEqual('The query params is invalid');
+    });
+
+    it('should throw invalid value for status error', async () => {
+      const res = await agent
+        .put(`/api/v1/admin/parcels/status/${parcelId}`)
+        .set('Authorization', adminToken)
+        .set('accept', 'application/json')
+        .send({
+          status: 'wrong status',
+        });
+      expect(res.status).toBe(400);
+      expect(res.body.message).toEqual('Invalid value for the status');
+    });
+
+    it('should throw status duplication error', async () => {
+      const res = await agent
+        .put(`/api/v1/admin/parcels/status/${parcelId}`)
+        .set('Authorization', adminToken)
+        .set('accept', 'application/json')
+        .send({
+          status: Status.TRANSITING,
+        });
+      expect(res.status).toBe(400);
+      expect(res.body.message).toEqual('the new status must be different from the old');
+    });
+
+    it('should throw status duplication error', async () => {
+      const res = await agent
+        .put(`/api/v1/admin/parcels/status/${parcelId}`)
+        .set('Authorization', adminToken)
+        .set('accept', 'application/json')
+        .send({
+          status: Status.TRANSITING,
+        });
+      expect(res.status).toBe(400);
+      expect(res.body.message).toEqual('the new status must be different from the old');
+    });
+
+    it('should fail to update the parcel status', async () => {
+      const res = await agent
+        .put(`/api/v1/admin/parcels/status/5c0a7922c9d89830f4911426`)
+        .set('Authorization', adminToken)
+        .set('accept', 'application/json')
+        .send({
+          status: Status.CANCELLED,
+        });
+      expect(res.status).toBe(500);
+      expect(res.body.message).toEqual('Failed to update the parcel status');
+    });
+  });
+
+  describe(Admin.prototype.updateParcelLocation, () => {
+    it('should successfully update the presentLocation and status to transiting', async () => {
+      const res = await agent
+        .put(`/api/v1/admin/parcels/location/${parcelId}`)
+        .set('Authorization', adminToken)
+        .set('accept', 'application/json')
+        .send({
+          presentLocation: 'Rwanda Kigali',
+        });
+      expect(res.status).toBe(200);
+      expect(res.body.message).toEqual('Parcel present location successfully updated');
+      expect(res.body.data.presentLocation).toEqual('Rwanda Kigali');
+      expect(res.body.data.status).toEqual('transiting');
+    });
+
+    it('should successfully update the presentLocation and status to delivered', async () => {
+      const res = await agent
+        .put(`/api/v1/admin/parcels/location/${parcelId}`)
+        .set('Authorization', adminToken)
+        .set('accept', 'application/json')
+        .send({
+          presentLocation: destination,
+        });
+      expect(res.status).toBe(200);
+      expect(res.body.message).toEqual('Parcel present location successfully updated');
+      expect(res.body.data.presentLocation).toEqual(destination);
+      expect(res.body.data.status).toEqual('delivered');
+    });
+
+    it('should throw invalid query params error', async () => {
+      const res = await agent
+        .put('/api/v1/admin/parcels/location/wrong-id-here')
+        .set('Authorization', adminToken)
+        .set('accept', 'application/json')
+        .send({
+          presentLocation: destination,
+        });
+      expect(res.status).toBe(400);
+      expect(res.body.message).toEqual('The query params is invalid');
+    });
+
+    it('should throw validation error', async () => {
+      const res = await agent
+        .put(`/api/v1/admin/parcels/location/${parcelId}`)
+        .set('Authorization', adminToken)
+        .set('accept', 'application/json')
+        .send({
+          presentLocation: '',
+        });
+      expect(res.status).toBe(400);
+      expect(res.body.message).toEqual(updateLocationValidationError);
+    });
+
+    it('should throw no parcel found error', async () => {
+      const res = await agent
+        .put('/api/v1/admin/parcels/location/5c0a7922c9d89830f4911426')
+        .set('Authorization', adminToken)
+        .set('accept', 'application/json')
+        .send({
+          presentLocation: 'Rwanda Kigali',
+        });
+      expect(res.status).toBe(404);
+      expect(res.body.message).toEqual('No parcel was found');
+    });
+
+    it('should throw presenLocation duplication error', async () => {
+      const res = await agent
+        .put(`/api/v1/admin/parcels/location/${parcelId}`)
+        .set('Authorization', adminToken)
+        .set('accept', 'application/json')
+        .send({
+          presentLocation: destination,
+        });
+      expect(res.status).toBe(400);
+      expect(res.body.message).toEqual('the new present location must be different from the old');
+    });
+  });
+
+  describe(Admin.prototype.countParcels, () => {
+    it('should successfully count parcels', async () => {
+      const res = await agent
+        .get('/api/v1/admin/parcels/count/')
+        .set('Authorization', adminToken)
+        .set('accept', 'application/json');
+      expect(res.status).toBe(200);
+      expect(res.body.data).toEqual({ pending: 1, transiting: 0, delivered: 1, cancelled: 0 });
     });
   });
 };
