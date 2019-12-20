@@ -54,3 +54,16 @@ export const parcelValidationError = [
   { value: '', msg: 'The destination cannot be empty', param: 'destination', location: 'body' },
   { value: 'string', msg: 'The parcel weight must be a number', param: 'weight', location: 'body' },
 ];
+
+export const updateParcelValidationError = [
+  { location: 'body', msg: 'The new status cannot be empty', param: 'status', value: '' },
+];
+
+export const updateLocationValidationError = [
+  {
+    location: 'body',
+    msg: 'The new present location cannot be empty',
+    param: 'presentLocation',
+    value: '',
+  },
+];

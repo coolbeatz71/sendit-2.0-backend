@@ -65,7 +65,6 @@ const parcelsTests = () => {
         .set('accept', 'application/json');
       expect(res.status).toBe(200);
       expect(res.body.data).toHaveLength(2);
-      expect(res.body.data[0].status).toEqual('pending');
     });
 
     it('should throw not logged in user error', async () => {
