@@ -68,7 +68,7 @@ export class Helpers {
     await this.validateEmpty(req, field, nameType);
     await check(field)
       .trim()
-      .isAlpha()
+      .matches(/^[a-zA-Z\-\s]+$/)
       .withMessage(`The ${nameType} can only contain alphatic characters`)
       .isLength({ min: 3 })
       .withMessage(`The ${nameType} must be at least 3 characters long`)
