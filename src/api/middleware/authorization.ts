@@ -27,8 +27,7 @@ export const verifyToken = (req: Request, res: Response, next: NextFunction): an
 
   try {
     const jwtPayload: any = jwt.verify(token, JWT_ENCRYPTION);
-    User.findOne({ _id: jwtPayload._id }, (err, result: UserDocument): any => {
-      if (err) return helper.getServerError(res, err.message);
+    User.findOne({ _id: jwtPayload._id }, (_err, result: UserDocument): any => {
       if (!result) {
         return helper.getResponse(res, httpStatus.UNAUTHORIZED, {
           message: 'The token appears to be invalid or expired',
@@ -56,7 +55,7 @@ export const verifyToken = (req: Request, res: Response, next: NextFunction): an
  * @param {object} next
  * @returns {void}
  */
-export const admin = (req: Request, res: Response, next: NextFunction) => {
+export const admin = (req: Request, res: Response, next: NextFunction): void => {
   verifyToken(req, res, () => {
     const { isAdmin }: any = req.user;
 
@@ -75,7 +74,7 @@ export const admin = (req: Request, res: Response, next: NextFunction) => {
  * @param {object} next
  * @returns {void}
  */
-export const user = (req: Request, res: Response, next: NextFunction) => {
+export const user = (req: Request, res: Response, next: NextFunction): void => {
   verifyToken(req, res, () => {
     const { isAdmin }: any = req.user;
 

@@ -11,7 +11,6 @@ export const admin = {
   email: 'admin@email.com',
   firstName: faker.name.firstName(),
   lastName: faker.name.lastName(),
-  provider: null,
   isLoggedIn: false,
   isAdmin: true,
 };
@@ -21,7 +20,6 @@ export const user = {
   email: 'user@email.com',
   firstName: faker.name.firstName(),
   lastName: faker.name.lastName(),
-  provider: null,
   isLoggedIn: false,
   isAdmin: false,
 };
@@ -31,7 +29,6 @@ export const adminLoggedIn = {
   email: 'loggedin_admin@email.com',
   firstName: faker.name.firstName(),
   lastName: faker.name.lastName(),
-  provider: null,
   isLoggedIn: true,
   isAdmin: true,
 };
@@ -41,7 +38,6 @@ export const userLoggedIn = {
   email: 'loggedin_user@email.com',
   firstName: faker.name.firstName(),
   lastName: faker.name.lastName(),
-  provider: null,
   isLoggedIn: true,
   isAdmin: false,
 };

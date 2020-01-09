@@ -3,10 +3,7 @@ import httpStatus from 'http-status';
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { check } from 'express-validator';
-import { config } from 'dotenv';
 import { JWT_ENCRYPTION } from '../database/config';
-
-config();
 
 export interface IJwtPayload {
   _id: string;
@@ -68,7 +65,7 @@ export class Helpers {
     await this.validateEmpty(req, field, nameType);
     await check(field)
       .trim()
-      .isAlpha()
+      .matches(/^[a-zA-Z\-\s]+$/)
       .withMessage(`The ${nameType} can only contain alphatic characters`)
       .isLength({ min: 3 })
       .withMessage(`The ${nameType} must be at least 3 characters long`)

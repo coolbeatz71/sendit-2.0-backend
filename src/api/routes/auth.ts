@@ -5,5 +5,6 @@ const router = express.Router();
 
 router.post('/signup', authCtrl.signUp);
 router.post('/signin', authCtrl.signIn);
+router.post('/social', authCtrl.socialLogin);
 
 export default router;
