@@ -137,10 +137,10 @@ export class Admin {
    */
   public async countParcels(_req: Request, res: Response) {
     try {
-      const pending = await Parcel.find({ status: Status.PENDING }).count();
-      const transiting = await Parcel.find({ status: Status.TRANSITING }).count();
-      const delivered = await Parcel.find({ status: Status.DELIVERED }).count();
-      const cancelled = await Parcel.find({ status: Status.CANCELLED }).count();
+      const pending = await Parcel.find({ status: Status.PENDING }).countDocuments();
+      const transiting = await Parcel.find({ status: Status.TRANSITING }).countDocuments();
+      const delivered = await Parcel.find({ status: Status.DELIVERED }).countDocuments();
+      const cancelled = await Parcel.find({ status: Status.CANCELLED }).countDocuments();
 
       return helper.getResponse(res, httpStatus.OK, {
         data: { pending, transiting, delivered, cancelled },
