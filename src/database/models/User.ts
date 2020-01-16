@@ -9,13 +9,11 @@ export type UserDocument = Document & {
 
   provider: string;
 
-  // for facebook login
+  // for social login
   profile: {
-    name: string;
-    gender: string;
-    location: string;
-    website: string;
-    picture: string;
+    username: string;
+    email: string;
+    image: string;
   };
 
   isLoggedIn: boolean;
@@ -31,19 +29,20 @@ type comparePasswordFunction = (
 
 const userSchema = new Schema(
   {
-    email: { type: String, unique: true },
+    email: String,
     firstName: String,
     lastName: String,
     password: { type: String, select: false },
 
-    provider: String,
+    provider: {
+      type: String,
+      default: false,
+    },
 
     profile: {
-      name: String,
-      gender: String,
-      location: String,
-      website: String,
-      picture: String,
+      username: String,
+      email: String,
+      image: String,
     },
 
     isLoggedIn: {

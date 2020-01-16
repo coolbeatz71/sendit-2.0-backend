@@ -69,8 +69,7 @@ export class Parcels {
         userId: _id,
       };
       const newParcel = new Parcel(parcelObj);
-      newParcel.save((err: Error, data: any) => {
-        if (err) return helper.getServerError(res, err.message);
+      newParcel.save((_err: Error, data: any) => {
         return helper.getResponse(res, httpStatus.CREATED, {
           data,
           message: 'Parcel was successfully created',
@@ -139,9 +138,7 @@ export class Parcels {
         { _id: id, userId: _id, status: Status.PENDING },
         safeParcel,
         { new: true },
-        (err, data: any) => {
-          if (err) return helper.getServerError(res, err.message);
-
+        (_err, data: any) => {
           return !data
             ? helper.getResponse(res, httpStatus.NOT_FOUND, {
                 message: 'No pending parcel was found',

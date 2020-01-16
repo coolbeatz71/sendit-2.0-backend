@@ -3,10 +3,7 @@ import httpStatus from 'http-status';
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { check } from 'express-validator';
-import { config } from 'dotenv';
 import { JWT_ENCRYPTION } from '../database/config';
-
-config();
 
 export interface IJwtPayload {
   _id: string;

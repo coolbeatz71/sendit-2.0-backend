@@ -29,6 +29,10 @@ export const {
   SALT_ROUNDS,
   USER_PASSWORD,
   JWT_NON_AUTH_ADMIN,
+  FACEBOOK_APP_ID,
+  FACEBOOK_APP_SECRET,
+  GOOGLE_APP_ID,
+  GOOGLE_APP_SECRET,
 } = process.env as {
   [key: string]: string;
 };

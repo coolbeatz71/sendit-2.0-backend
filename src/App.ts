@@ -15,8 +15,8 @@ class App {
   }
 
   private setMiddlewares(): void {
-    this.express.use(express.json());
     this.express.use(cors());
+    this.express.use(express.json());
     this.express.use(morgan('dev'));
     this.express.use(helmet());
   }

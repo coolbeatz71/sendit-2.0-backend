@@ -67,3 +67,23 @@ export const updateLocationValidationError = [
     value: '',
   },
 ];
+
+export const socialLoginValidationError = [
+  { value: '', msg: 'The image url cannot be empty', param: 'image', location: 'body' },
+  { value: '', msg: 'The username cannot be empty', param: 'name', location: 'body' },
+  { value: '', msg: 'The provider cannot be empty', param: 'provider', location: 'body' },
+  {
+    value: '',
+    msg: 'The provider can only contain alphatic characters',
+    param: 'provider',
+    location: 'body',
+  },
+  {
+    value: '',
+    msg: 'The provider must be at least 3 characters long',
+    param: 'provider',
+    location: 'body',
+  },
+  { value: '', msg: 'The email address cannot be empty', param: 'email', location: 'body' },
+  { value: '', msg: 'Please enter a valid email address', param: 'email', location: 'body' },
+];

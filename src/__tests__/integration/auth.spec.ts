@@ -3,7 +3,11 @@ import faker from 'faker';
 import { Auth } from '../../api/controllers/auth';
 import app from '../../App';
 import { USER_PASSWORD } from '../../database/config';
-import { signinValidationError, signupValidationError } from '../../../__mocks__';
+import {
+  signinValidationError,
+  signupValidationError,
+  socialLoginValidationError,
+} from '../../../__mocks__';
 
 const authTests = () => {
   const agent = request(app);
@@ -72,7 +76,7 @@ const authTests = () => {
       expect(res.status).toBe(201);
       expect(res.body.token).toBeDefined();
       expect(res.body.data).toBeDefined();
-      expect(res.body.data.isLoggedIn).toBeFalsy();
+      expect(res.body.data.isLoggedIn).toBeTruthy();
       expect(res.body.data.isAdmin).toBeFalsy();
     });
 
@@ -102,6 +106,39 @@ const authTests = () => {
         .set('accept', 'application/json');
       expect(res.status).toBe(400);
       expect(res.body.message).toEqual(signupValidationError);
+    });
+  });
+
+  describe(Auth.prototype.socialLogin, () => {
+    it('should successfully social login the user', async () => {
+      const res = await agent
+        .post('/api/v1/auth/social')
+        .send({
+          provider: 'facebook',
+          image: 'link/to/image.jpg',
+          email: 'email@gmail.com',
+          name: 'username',
+        })
+        .set('accept', 'application/json');
+      expect(res.status).toBe(201);
+      expect(res.body.token).toBeDefined();
+      expect(res.body.data).toBeDefined();
+      expect(res.body.data.isLoggedIn).toBeTruthy();
+      expect(res.body.data.isAdmin).toBeFalsy();
+    });
+
+    it('should throw validation error', async () => {
+      const res = await agent
+        .post('/api/v1/auth/social')
+        .send({
+          provider: '',
+          image: '',
+          email: '',
+          name: '',
+        })
+        .set('accept', 'application/json');
+      expect(res.status).toBe(400);
+      expect(res.body.message).toEqual(socialLoginValidationError);
     });
   });
 };

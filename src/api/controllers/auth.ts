@@ -35,13 +35,12 @@ export class Auth {
         firstName,
         lastName,
         password,
-        isLoggedIn: false,
+        isLoggedIn: true,
         isAdmin: false,
       };
 
       const newUser = new User(userObj);
-      newUser.save((err: Error, user: any) => {
-        if (err) return helper.getServerError(res, err.message);
+      newUser.save((_err: Error, user: any) => {
         const { _id, email, isAdmin } = user;
         const token = helper.generateToken({ _id, email, isAdmin });
 
@@ -85,13 +84,51 @@ export class Auth {
         }
 
         // update the isLogged field
-        User.findOneAndUpdate({ email }, { isLoggedIn: true }, { new: true }, (err, data: any) => {
-          if (err) return helper.getServerError(res, err.message);
+        User.findOneAndUpdate({ email }, { isLoggedIn: true }, { new: true }, (_err, data: any) => {
           const { _id, email, isAdmin } = data;
           const token = helper.generateToken({ _id, email, isAdmin });
           return helper.getResponse(res, httpStatus.OK, { token, data });
         });
       });
+    } catch (error) {
+      return helper.getServerError(res, error.message);
+    }
+  }
+
+  /**
+   * controller to login user via (facebook and google)
+   * @param req Request
+   * @param res Response
+   */
+  public async socialLogin(req: Request, res: Response): Promise<any> {
+    try {
+      const { provider, image, email, name } = req.body;
+
+      await helper.validateEmpty(req, 'image', 'image url');
+      await helper.validateEmpty(req, 'name', 'username');
+      await helper.validateNames(req, 'provider', 'provider');
+      await helper.validateEmail(req, 'email');
+
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) return helper.getValidationError(res, errors);
+
+      const profile = {
+        email,
+        image,
+        username: name.toLowerCase(),
+      };
+
+      User.findOneAndUpdate(
+        { 'profile.username': profile.username, 'profile.email': profile.email },
+        { provider, profile, isLoggedIn: true, isAdmin: false },
+        { new: true, upsert: true },
+        (_err, data: any) => {
+          const { _id, profile, isAdmin } = data;
+          const { email } = profile;
+          const token = helper.generateToken({ _id, email, isAdmin });
+          return helper.getResponse(res, httpStatus.CREATED, { token, data });
+        },
+      );
     } catch (error) {
       return helper.getServerError(res, error.message);
     }
