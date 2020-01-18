@@ -133,6 +133,39 @@ export class Auth {
       return helper.getServerError(res, error.message);
     }
   }
+
+  /**
+   * get user token info for page authorization
+   * @param req Request
+   * @param res Response
+   */
+  public async getUser(req: Request, res: Response): Promise<any> {
+    const { _id, isAdmin, email }: any = req.user;
+    const data = {
+      _id,
+      isAdmin,
+      email,
+    };
+    return helper.getResponse(res, httpStatus.OK, { data });
+  }
+
+  /**
+   * controller for signing out
+   * @param req Request
+   * @param res Response
+   */
+  public async signOut(req: Request, res: Response): Promise<any> {
+    try {
+      const { _id }: any = req.user;
+      User.findOneAndUpdate({ _id }, { isLoggedIn: false }, (_err, _data: any) => {
+        return helper.getResponse(res, httpStatus.OK, {
+          message: 'User successfully signs out',
+        });
+      });
+    } catch (error) {
+      return helper.getServerError(res, error.message);
+    }
+  }
 }
 
 const authCtrl = new Auth();

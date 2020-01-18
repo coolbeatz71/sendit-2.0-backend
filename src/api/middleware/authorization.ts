@@ -33,6 +33,7 @@ export const verifyToken = (req: Request, res: Response, next: NextFunction): an
           message: 'The token appears to be invalid or expired',
         });
       }
+
       if (!result.isLoggedIn) {
         return helper.getResponse(res, httpStatus.FORBIDDEN, {
           message: 'You need to first log in',
