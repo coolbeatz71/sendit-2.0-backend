@@ -27,7 +27,6 @@ class App {
 
   private catchErrors(): void {
     this.express.use(errorHandler.notFound);
-    this.express.use(errorHandler.internalServerError);
   }
 }
 
