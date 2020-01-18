@@ -133,6 +133,24 @@ export class Auth {
       return helper.getServerError(res, error.message);
     }
   }
+
+  /**
+   * controller for signing out
+   * @param req Request
+   * @param res Response
+   */
+  public async signOut(req: Request, res: Response): Promise<any> {
+    try {
+      const { _id }: any = req.user;
+      User.findOneAndUpdate({ _id }, { isLoggedIn: false }, (_err, _data: any) => {
+        return helper.getResponse(res, httpStatus.OK, {
+          message: 'User successfully signs out',
+        });
+      });
+    } catch (error) {
+      return helper.getServerError(res, error.message);
+    }
+  }
 }
 
 const authCtrl = new Auth();
