@@ -135,6 +135,21 @@ export class Auth {
   }
 
   /**
+   * get user token info for page authorization
+   * @param req Request
+   * @param res Response
+   */
+  public async getUser(req: Request, res: Response): Promise<any> {
+    const { _id, isAdmin, email }: any = req.user;
+    const data = {
+      _id,
+      isAdmin,
+      email,
+    };
+    return helper.getResponse(res, httpStatus.OK, { data });
+  }
+
+  /**
    * controller for signing out
    * @param req Request
    * @param res Response

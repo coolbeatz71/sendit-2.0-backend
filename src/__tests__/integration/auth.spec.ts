@@ -63,6 +63,19 @@ const authTests = () => {
       expect(res.body.message).toEqual('The password you provided is incorrect');
     });
 
+    describe(Auth.prototype.getUser, () => {
+      it('should successfully get the token info', async () => {
+        const res = await agent
+          .get('/api/v1/auth')
+          .set('Authorization', token)
+          .set('accept', 'application/json');
+        expect(res.status).toBe(200);
+        expect(res.body.data._id).toBeDefined();
+        expect(res.body.data.email).toBeDefined();
+        expect(res.body.data.isAdmin).toBeDefined();
+      });
+    });
+
     describe(Auth.prototype.signOut, () => {
       it('should successfully log the user out', async () => {
         const res = await agent
