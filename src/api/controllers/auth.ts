@@ -140,13 +140,24 @@ export class Auth {
    * @param res Response
    */
   public async getUser(req: Request, res: Response): Promise<any> {
-    const { _id, isAdmin, email }: any = req.user;
-    const data = {
-      _id,
-      isAdmin,
-      email,
-    };
-    return helper.getResponse(res, httpStatus.OK, { data });
+    let token: string;
+    try {
+      const { _id }: any = req.user;
+
+      User.findOne({ _id }, (_err, data: any) => {
+        const { _id, email, provider, profile, isAdmin } = data;
+
+        if (provider) {
+          const { email } = profile;
+          token = helper.generateToken({ _id, email, isAdmin });
+        }
+
+        token = helper.generateToken({ _id, email, isAdmin });
+        return helper.getResponse(res, httpStatus.OK, { token, data });
+      });
+    } catch (error) {
+      return helper.getServerError(res, error.message);
+    }
   }
 
   /**
