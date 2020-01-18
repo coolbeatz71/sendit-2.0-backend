@@ -64,15 +64,15 @@ const authTests = () => {
     });
 
     describe(Auth.prototype.getUser, () => {
-      it('should successfully get the token info', async () => {
+      it('should successfully get the user info', async () => {
         const res = await agent
           .get('/api/v1/auth')
           .set('Authorization', token)
           .set('accept', 'application/json');
         expect(res.status).toBe(200);
         expect(res.body.data._id).toBeDefined();
-        expect(res.body.data.email).toBeDefined();
         expect(res.body.data.isAdmin).toBeDefined();
+        expect(res.body.data.email).toEqual('user@email.com');
       });
     });
 
@@ -151,6 +151,7 @@ const authTests = () => {
       expect(res.body.data).toBeDefined();
       expect(res.body.data.isLoggedIn).toBeTruthy();
       expect(res.body.data.isAdmin).toBeFalsy();
+      token = `Bearer ${res.body.token}`;
     });
 
     it('should throw validation error', async () => {
@@ -165,6 +166,19 @@ const authTests = () => {
         .set('accept', 'application/json');
       expect(res.status).toBe(400);
       expect(res.body.message).toEqual(socialLoginValidationError);
+    });
+
+    describe(Auth.prototype.getUser, () => {
+      it('should successfully get facebook user info', async () => {
+        const res = await agent
+          .get('/api/v1/auth')
+          .set('Authorization', token)
+          .set('accept', 'application/json');
+        expect(res.status).toBe(200);
+        expect(res.body.data._id).toBeDefined();
+        expect(res.body.data.isAdmin).toBeDefined();
+        expect(res.body.data.profile.email).toEqual('email@gmail.com');
+      });
     });
   });
 };
