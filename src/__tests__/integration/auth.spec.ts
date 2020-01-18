@@ -13,6 +13,53 @@ const authTests = () => {
   const agent = request(app);
   let token: string;
 
+  describe(Auth.prototype.signUp, () => {
+    it('should successfully sign up the user', async () => {
+      const res = await agent
+        .post('/api/v1/auth/signup')
+        .send({
+          password: USER_PASSWORD,
+          email: 'user_2@email.com',
+          firstName: faker.name.firstName(),
+          lastName: faker.name.lastName(),
+        })
+        .set('accept', 'application/json');
+      expect(res.status).toBe(201);
+      expect(res.body.token).toBeDefined();
+      expect(res.body.data).toBeDefined();
+      expect(res.body.data.isLoggedIn).toBeTruthy();
+      expect(res.body.data.isAdmin).toBeFalsy();
+    });
+
+    it('should throw email duplication error', async () => {
+      const res = await agent
+        .post('/api/v1/auth/signup')
+        .send({
+          password: USER_PASSWORD,
+          email: 'user_2@email.com',
+          firstName: faker.name.firstName(),
+          lastName: faker.name.lastName(),
+        })
+        .set('accept', 'application/json');
+      expect(res.status).toBe(409);
+      expect(res.body.message).toEqual('Account with that email address already exists');
+    });
+
+    it('should throw validation error', async () => {
+      const res = await agent
+        .post('/api/v1/auth/signup')
+        .send({
+          password: '',
+          email: 'wrong-email',
+          firstName: 'firstName111',
+          lastName: 'lastName111',
+        })
+        .set('accept', 'application/json');
+      expect(res.status).toBe(400);
+      expect(res.body.message).toEqual(signupValidationError);
+    });
+  });
+
   describe(Auth.prototype.signIn, () => {
     it('should successfully signin the user', async () => {
       const res = await agent
@@ -85,53 +132,6 @@ const authTests = () => {
         expect(res.status).toBe(200);
         expect(res.body.message).toEqual('User successfully signs out');
       });
-    });
-  });
-
-  describe(Auth.prototype.signUp, () => {
-    it('should successfully sign up the user', async () => {
-      const res = await agent
-        .post('/api/v1/auth/signup')
-        .send({
-          password: USER_PASSWORD,
-          email: 'user_2@email.com',
-          firstName: faker.name.firstName(),
-          lastName: faker.name.lastName(),
-        })
-        .set('accept', 'application/json');
-      expect(res.status).toBe(201);
-      expect(res.body.token).toBeDefined();
-      expect(res.body.data).toBeDefined();
-      expect(res.body.data.isLoggedIn).toBeTruthy();
-      expect(res.body.data.isAdmin).toBeFalsy();
-    });
-
-    it('should throw email duplication error', async () => {
-      const res = await agent
-        .post('/api/v1/auth/signup')
-        .send({
-          password: USER_PASSWORD,
-          email: 'user_2@email.com',
-          firstName: faker.name.firstName(),
-          lastName: faker.name.lastName(),
-        })
-        .set('accept', 'application/json');
-      expect(res.status).toBe(409);
-      expect(res.body.message).toEqual('Account with that email address already exists');
-    });
-
-    it('should throw validation error', async () => {
-      const res = await agent
-        .post('/api/v1/auth/signup')
-        .send({
-          password: '',
-          email: 'wrong-email',
-          firstName: 'firstName111',
-          lastName: 'lastName111',
-        })
-        .set('accept', 'application/json');
-      expect(res.status).toBe(400);
-      expect(res.body.message).toEqual(signupValidationError);
     });
   });
 
